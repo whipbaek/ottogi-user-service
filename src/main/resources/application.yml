@@ -1,0 +1,46 @@
+server:
+  port: 64412
+
+spring:
+  application:
+    name: user-service
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ottogi?characterEncoding=utf8&serverTimezone=Asia/Seoul
+    username: root
+    password: root
+  freemarker:
+    cache: false
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: whipbaek@gmail.com
+    password: mdreviutndnqshdm
+
+spring.mail.properties.mail.smtp.auth: true
+spring.mail.properties.mail.smtp.starttls.enable: true
+
+eureka:
+  instance:
+    instance-id: user-microservice-instance
+
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+jwt:
+  secret: c3ByaW5nLWJvb3Qtc2VjdXJpdHktand0LXR1dG9yaWFsLWppd29vbi1zcHJpbmctYm9vdC1zZWN1cml0eS1qd3QtdHV0b3JpYWwK
+
+
