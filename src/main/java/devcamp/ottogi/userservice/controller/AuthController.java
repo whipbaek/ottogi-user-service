@@ -38,10 +38,11 @@ public class AuthController {
         }
 
         // 메일 전송
-        emailService.sendSimpleMessage(userEmail);
-        log.info("이메일을 전송하였습니다.");
+//        emailService.sendSimpleMessage(userEmail);
+//        log.info("이메일을 전송하였습니다.");
+        authService.signup(userMemberRequestDto);
 
-        return "이메일을 전송하였습니다."; // -> ok면 메일인증 화면으로 이동
+        return "가입완료."; // -> ok면 메일인증 화면으로 이동
     }
 
     @PostMapping("/login")
@@ -58,9 +59,9 @@ public class AuthController {
     public String emailConfirm(@RequestBody String userCode) {
         userCode = userCode.substring(21,28);
 
-        if(!emailService.validateCodeNumber(userCode)){
-            return "인증코드가 틀렸습니다."; // code 보내주기
-        }
+//        if(!emailService.validateCodeNumber(userCode)){
+//            return "인증코드가 틀렸습니다."; // code 보내주기
+//        }
 
         authService.signup(userMemberRequestDto);
         return "인증코드가 맞습니다. 회원가입 완료!"; //

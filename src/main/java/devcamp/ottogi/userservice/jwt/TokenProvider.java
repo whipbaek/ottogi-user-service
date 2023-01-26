@@ -48,6 +48,8 @@ public class TokenProvider {
         // Access Token 생성
         Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
 
+        log.info("authentication getName : {}", authentication.getName());
+
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
@@ -76,6 +78,7 @@ public class TokenProvider {
         if(claims.get(AUTHORITIES_KEY) == null){
             throw new RuntimeException("권한 정보가 없는 토큰입니다.");
         }
+
 
         // 클레임에서 권한 정보 가져오기
         Collection<? extends GrantedAuthority> authorities =

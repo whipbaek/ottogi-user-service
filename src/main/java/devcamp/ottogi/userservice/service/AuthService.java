@@ -42,9 +42,13 @@ public class AuthService {
     public TokenDto login(MemberRequestDto memberRequestDto) {
         // 1. Login ID/PW 를 기반으로 AuthenticationToken 생성
         UsernamePasswordAuthenticationToken authenticationToken = memberRequestDto.toAuthentication();
+        log.info("authenticationToken Principal : {}", authenticationToken.getPrincipal());
 
         // 2. 실제로 검증 (사용자 비밀번호 체크) 이 이루어지는 부분
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        log.info("authentication : {}", authentication.getName());
+        log.info("authentication : {}", authentication.getPrincipal());
+        log.info("authentication : {}", authentication.getDetails());
 
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
         TokenDto tokenDto = tokenProvider.generateTokenDto(authentication);
@@ -72,7 +76,7 @@ public class AuthService {
 
         // 3. 저장소에서 Member ID를 기반으로 Refresh Token 값 가져옴
         RefreshToken refreshToken = refreshTokenRepository.findByKey(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("로그아웃 된 사용자입니다."));
+                .orElseThrow(() -> new RuntimeException("로그아웃 된 사용자입니다.")); //refresh 값이 db에서 삭제되었으면 만료되었다는 뜻.
 
         // 4. Refresh Token 일치하는지 검사
         if (!refreshToken.getValue().equals(tokenRequestDto.getRefreshToken())) {

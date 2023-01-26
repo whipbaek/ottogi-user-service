@@ -49,12 +49,8 @@ public class SecurityConfig {
 
                 .and()
                 .authorizeRequests()
-                .antMatchers("/user/auth/**").permitAll()
-                .anyRequest().authenticated() // 나머지 API는 전부 인증 필요
-
-                // JwtFilter 를 addFilterBeofre 로 등록했던 JwtSecurityConfig 클래스를 적용
-                .and()
-                .apply(new JwtSecurityConfig(tokenProvider));
+                .antMatchers("/user/**").permitAll()
+                .anyRequest().authenticated(); // 나머지 API는 전부 인증 필요
 
         return http.build();
     }
