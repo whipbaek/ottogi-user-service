@@ -30,7 +30,6 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final RedisTemplate<String, String> redisTemplate;
 
     @Transactional
@@ -51,26 +50,18 @@ public class AuthService {
 
         // 2. 실제로 검증 (사용자 비밀번호 체크) 이 이루어지는 부분
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        log.info("authentication : {}", authentication.getName());
-        log.info("authentication : {}", authentication.getPrincipal());
-        log.info("authentication : {}", authentication.getDetails());
 
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
         TokenDto tokenDto = tokenProvider.generateTokenDto(authentication);
 
-        // 4. RefreshToken 저장
+        log.info("tokenDto.getRefreshToken : {}", tokenDto.getRefreshToken());
+        log.info("tokenDto.getRefreshToken : {}", tokenDto.getRefreshTokenExpiresIn());
+
+        // 4. RefreshToken 저장 (key, value, timout, time 단위(ms))
         redisTemplate.opsForValue()
-                .set("RT:" + authentication.getName(), tokenDto.getRefreshToken(), tokenDto.getTokenExpiresIn(), TimeUnit.MILLISECONDS);
+                .set("RT:" + authentication.getName(), tokenDto.getRefreshToken(), tokenDto.getRefreshTokenExpiresIn(), TimeUnit.MILLISECONDS);
 
-        log.info("tokenDto.getTokenExpiresIn() = {}",tokenDto.getTokenExpiresIn());
-
-
-        RefreshToken refreshToken = RefreshToken.builder()
-                .key(authentication.getName())
-                .value(tokenDto.getRefreshToken())
-                .build();
-
-        refreshTokenRepository.save(refreshToken);
+        log.info("tokenDto.getTokenExpiresIn() = {}",tokenDto.getRefreshTokenExpiresIn());
 
         return tokenDto;
     }
@@ -98,7 +89,7 @@ public class AuthService {
         TokenDto tokenDto = tokenProvider.generateTokenDto(authentication);
 
         // 6. 저장소 정보 업데이트
-        redisTemplate.opsForValue().set("RT:" + authentication.getName(), tokenDto.getRefreshToken(), tokenDto.getTokenExpiresIn(), TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().set("RT:" + authentication.getName(), tokenDto.getRefreshToken(), tokenDto.getRefreshTokenExpiresIn(), TimeUnit.MILLISECONDS);
         //토큰 발급
         return tokenDto;
     }

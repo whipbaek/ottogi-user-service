@@ -19,9 +19,4 @@ public class TestController {
         return "hello user service!";
     }
 
-    @GetMapping("/redisHello")
-    public String redisTest(){
-        refreshTokenRepository.save(new RefreshToken("testKey", "PW"));
-        return "저장완료!";
-    }
 }
