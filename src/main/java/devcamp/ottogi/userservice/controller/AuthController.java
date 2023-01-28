@@ -3,16 +3,21 @@ package devcamp.ottogi.userservice.controller;
 import devcamp.ottogi.userservice.dto.MemberRequestDto;
 import devcamp.ottogi.userservice.dto.TokenDto;
 import devcamp.ottogi.userservice.dto.TokenRequestDto;
+import devcamp.ottogi.userservice.exception.ApiException;
+import devcamp.ottogi.userservice.response.CommonResponse;
 import devcamp.ottogi.userservice.service.AuthService;
 import devcamp.ottogi.userservice.service.EmailService;
+import devcamp.ottogi.userservice.service.ResponseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import static devcamp.ottogi.userservice.domain.TextMessages.*;
+import static devcamp.ottogi.userservice.exception.ErrorCode.*;
 
 @RestController
 @RequestMapping("/user/auth")
@@ -21,11 +26,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final AuthService authService;
     private final EmailService emailService;
+    private final ResponseService responseService;
     private String userEmail;
     private MemberRequestDto userMemberRequestDto;
 
     @PostMapping("/signup")
-    public String signup(@RequestBody MemberRequestDto memberRequestDto) {
+    public CommonResponse<Object> signup(@RequestBody MemberRequestDto memberRequestDto) {
 
         userMemberRequestDto = new MemberRequestDto(memberRequestDto);
         userEmail = memberRequestDto.getEmail();
@@ -33,16 +39,23 @@ public class AuthController {
 
         // 로직 검사
         if(password.length() < 8){
-            log.error("비밀번호 길이는 8자 이상이어야 합니다.");
-            return "비밀번호 길이 오류!";
+            throw new ApiException(SIGNUP_PW_ERROR);
         }
 
-        // 메일 전송
-//        emailService.sendSimpleMessage(userEmail);
-//        log.info("이메일을 전송하였습니다.");
         authService.signup(userMemberRequestDto);
+        return responseService.getSuccessResponse(SEND_EMAIL, null);
+    }
 
-        return "가입완료."; // -> ok면 메일인증 화면으로 이동
+    @PostMapping("/email")
+    public CommonResponse<Object> emailConfirm(@RequestBody String userCode) {
+        userCode = userCode.substring(21,28);
+
+//        if(!emailService.validateCodeNumber(userCode)){
+//            throw new ApiException(EMAIL_INPUT_ERROR);
+//        }
+//
+//        authService.signup(userMemberRequestDto);
+        return responseService.getSuccessResponse(SIGNUP_SUCCESS, userEmail);
     }
 
     @PostMapping("/login")
@@ -55,16 +68,5 @@ public class AuthController {
         return ResponseEntity.ok(authService.reissue(tokenRequestDto));
     }
 
-    @PostMapping("/email")
-    public String emailConfirm(@RequestBody String userCode) {
-        userCode = userCode.substring(21,28);
 
-//        if(!emailService.validateCodeNumber(userCode)){
-//            return "인증코드가 틀렸습니다."; // code 보내주기
-//        }
-
-        authService.signup(userMemberRequestDto);
-        return "인증코드가 맞습니다. 회원가입 완료!"; //
-
-    }
 }
