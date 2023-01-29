@@ -48,8 +48,6 @@ public class TokenProvider {
         // Access Token 생성
         Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
 
-        log.info("authentication getName : {}", authentication.getName());
-
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)

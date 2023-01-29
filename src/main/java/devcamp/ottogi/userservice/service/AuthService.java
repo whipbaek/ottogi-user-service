@@ -1,9 +1,6 @@
 package devcamp.ottogi.userservice.service;
 
-import devcamp.ottogi.userservice.dto.MemberRequestDto;
-import devcamp.ottogi.userservice.dto.MemberResponseDto;
-import devcamp.ottogi.userservice.dto.TokenDto;
-import devcamp.ottogi.userservice.dto.TokenRequestDto;
+import devcamp.ottogi.userservice.dto.*;
 import devcamp.ottogi.userservice.entity.Member;
 import devcamp.ottogi.userservice.entity.RefreshToken;
 import devcamp.ottogi.userservice.jwt.TokenProvider;
@@ -43,9 +40,9 @@ public class AuthService {
     }
 
     @Transactional
-    public TokenDto login(MemberRequestDto memberRequestDto) {
+    public TokenDto login(MemberLoginDto memberLoginDto) {
         // 1. Login ID/PW 를 기반으로 AuthenticationToken 생성
-        UsernamePasswordAuthenticationToken authenticationToken = memberRequestDto.toAuthentication();
+        UsernamePasswordAuthenticationToken authenticationToken = memberLoginDto.toAuthentication();
         log.info("authenticationToken Principal : {}", authenticationToken.getPrincipal());
 
         // 2. 실제로 검증 (사용자 비밀번호 체크) 이 이루어지는 부분
@@ -54,14 +51,11 @@ public class AuthService {
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
         TokenDto tokenDto = tokenProvider.generateTokenDto(authentication);
 
-        log.info("tokenDto.getRefreshToken : {}", tokenDto.getRefreshToken());
-        log.info("tokenDto.getRefreshToken : {}", tokenDto.getRefreshTokenExpiresIn());
 
         // 4. RefreshToken 저장 (key, value, timout, time 단위(ms))
         redisTemplate.opsForValue()
                 .set("RT:" + authentication.getName(), tokenDto.getRefreshToken(), tokenDto.getRefreshTokenExpiresIn(), TimeUnit.MILLISECONDS);
 
-        log.info("tokenDto.getTokenExpiresIn() = {}",tokenDto.getRefreshTokenExpiresIn());
 
         return tokenDto;
     }

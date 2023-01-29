@@ -1,5 +1,6 @@
 package devcamp.ottogi.userservice.controller;
 
+import devcamp.ottogi.userservice.dto.MemberLoginDto;
 import devcamp.ottogi.userservice.dto.MemberRequestDto;
 import devcamp.ottogi.userservice.dto.TokenDto;
 import devcamp.ottogi.userservice.dto.TokenRequestDto;
@@ -59,14 +60,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenDto> login(@RequestBody MemberRequestDto memberRequestDto) {
-        return ResponseEntity.ok(authService.login(memberRequestDto));
+    public CommonResponse<Object> login(@RequestBody MemberLoginDto memberLoginDto) {
+        return responseService.getSuccessResponse(LOGIN_SUCCESS, authService.login(memberLoginDto));
     }
 
     @PostMapping("/reissue") //재발급
-    public ResponseEntity<TokenDto> reissue(@RequestBody TokenRequestDto tokenRequestDto) {
-        return ResponseEntity.ok(authService.reissue(tokenRequestDto));
+    public CommonResponse<Object> reissue(@RequestBody TokenRequestDto tokenRequestDto) {
+        return responseService.getSuccessResponse(REISSUE_SUCCESS, authService.reissue(tokenRequestDto));
     }
-
-
 }
